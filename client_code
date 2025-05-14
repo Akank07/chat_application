@@ -1,0 +1,32 @@
+import java.io.*;
+import java.net.*;
+
+public class ChatClient {
+    public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("localhost", 1234);
+
+        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+        System.out.println("Connected to chat server. Type your messages:");
+
+        // Thread to read messages from the server
+        new Thread(() -> {
+            try {
+                String response;
+                while ((response = input.readLine()) != null) {
+                    System.out.println(response);
+                }
+            } catch (IOException e) {
+                System.out.println("Connection closed.");
+            }
+        }).start();
+
+        // Main thread to send messages
+        String message;
+        while ((message = userInput.readLine()) != null) {
+            out.println(message);
+        }
+    }
+}
